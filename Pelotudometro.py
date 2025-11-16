@@ -36,6 +36,9 @@ if uploaded_file is not None:
 # --- CUESTIONARIO ---
 
 st.header("2. Respondé el Cuestionario de Hoy")
+st.write("""
+Marcá de 1 a 5 qué tan identificado te sentís con cada afirmación, siendo 1 "muy poco identificado" y 5 "muy identificado".
+""")
 
 preguntas = {
     "P1": "Dormí para el culo (menos de 7hs) o me desperté mil veces.",
