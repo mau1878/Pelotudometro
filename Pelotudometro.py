@@ -8,7 +8,7 @@ import plotly.express as px # <-- 1. IMPORTAR PLOTLY
 
 st.set_page_config(page_title="El Pelotudómetro del Trader", layout="centered")
 # --- TÍTULO CON BANDERAS A PRUEBA DE BALAS ---
-col1, col2, col3 = st.columns([1, 8, 1]) # Columnas para [bandera, título, bandera]
+col1, col2, col3 = st.columns([1, 10, 1]) # Columnas para [bandera, título, bandera]
 
 with col1:
     st.image("https://twemoji.maxcdn.com/v/13.1.0/72x72/1f1e6-1f1f7.png", width=60)
