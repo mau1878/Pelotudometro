@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import io
+import plotly.express as px # <-- 1. IMPORTAR PLOTLY
 
 # --- CONFIGURACIÓN INICIAL ---
 
@@ -13,7 +14,6 @@ st.write("""
 
 # --- INICIALIZACIÓN DEL ESTADO DE LA SESIÓN ---
 
-# Usamos st.session_state para mantener el DataFrame en memoria durante tu sesión.
 if 'df_historial' not in st.session_state:
     st.session_state.df_historial = pd.DataFrame()
 
@@ -26,7 +26,6 @@ uploaded_file = st.file_uploader(
 )
 
 if uploaded_file is not None:
-    # Leer el CSV que subiste y guardarlo en la sesión actual
     try:
         df_cargado = pd.read_csv(uploaded_file)
         st.session_state.df_historial = df_cargado
@@ -63,18 +62,16 @@ with st.form(key="pelotudometro_form"):
 if submit_button:
     puntaje_total = sum(respuestas.values())
 
-    # Interpretación del puntaje
     if puntaje_total <= 20:
         interpretacion = "✅ Puntaje bajo. Estás lúcido. Dale para adelante, pero no te agrandés."
         st.success(f"**Puntaje Total: {puntaje_total}**. {interpretacion}")
     elif 21 <= puntaje_total <= 30:
         interpretacion = "⚠️ Puntaje medio. Guarda. Andá con cuidado, revisá tu plan y no te zarpes con el tamaño."
         st.warning(f"**Puntaje Total: {puntaje_total}**. {interpretacion}")
-    else: # Mayor a 30
+    else:
         interpretacion = "🚨 ¡Puntaje alto! ALERTA ROJA. Estás a punto de hacer una macana. Apagá la compu y andá a tomar aire. En serio."
         st.error(f"**Puntaje Total: {puntaje_total}**. {interpretacion}")
 
-    # Crear un DataFrame para el nuevo registro
     fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     nuevo_registro_dict = {"Fecha": [fecha_actual]}
     nuevo_registro_dict.update({k: [v] for k, v in respuestas.items()})
@@ -83,9 +80,7 @@ if submit_button:
     
     nuevo_registro_df = pd.DataFrame(nuevo_registro_dict)
 
-    # Añadir el nuevo registro al historial que ya tenías en la sesión
     st.session_state.df_historial = pd.concat([st.session_state.df_historial, nuevo_registro_df], ignore_index=True)
-    
     st.info("💾 Tu resultado se guardó en el historial de esta sesión. ¡No te olvides de descargarlo!")
 
 # --- VISUALIZACIÓN Y DESCARGA DEL HISTORIAL ---
@@ -99,14 +94,28 @@ if not st.session_state.df_historial.empty:
 
     st.write("Acá podés ver tus registros anteriores para ver si sos un pelotudo recurrente.")
     
-    # Gráfico de evolución del puntaje
-    st.line_chart(df_display.rename(columns={'Fecha':'index'}).set_index('index')['PuntajeTotal'])
+    # --- 2. SECCIÓN DEL GRÁFICO MEJORADA ---
+    st.write("#### Evolución de tu Nivel de Pelotudez")
+    fig = px.line(
+        df_display,
+        x='Fecha',
+        y='PuntajeTotal',
+        markers=True,
+        labels={'PuntajeTotal': 'Nivel de Pelotudez', 'Fecha': 'Día'},
+        hover_data={'Interpretacion': True, 'PuntajeTotal': ':.0f'}
+    )
+    fig.update_traces(line=dict(color='#FF8C00', width=3), marker=dict(size=8)) # Naranja oscuro
+    fig.update_layout(
+        xaxis_title="Fecha de Medición",
+        yaxis_title="Puntaje (más alto = más pelotudo)",
+        template="streamlit" # Usa el tema de Streamlit para consistencia
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    # --- FIN DE LA SECCIÓN DEL GRÁFICO ---
 
-    # Mostrar la tabla de datos
+    st.write("#### Datos Completos")
     st.dataframe(df_display)
 
-    # --- Botón de Descarga ---
-    # Convertir el DataFrame a CSV en la memoria para que lo bajes
     csv = st.session_state.df_historial.to_csv(index=False).encode('utf-8')
     
     st.download_button(
