@@ -7,7 +7,17 @@ import plotly.express as px # <-- 1. IMPORTAR PLOTLY
 # --- CONFIGURACIÓN INICIAL ---
 
 st.set_page_config(page_title="El Pelotudómetro del Trader", layout="centered")
-st.title("🇦🇷 El Pelotudómetro del Trader 🇦🇷")
+# --- TÍTULO CON BANDERAS A PRUEBA DE BALAS ---
+col1, col2, col3 = st.columns([1, 8, 1]) # Columnas para [bandera, título, bandera]
+
+with col1:
+    st.image("https://twemoji.maxcdn.com/v/13.1.0/72x72/1f1e6-1f1f7.png", width=60)
+
+with col2:
+    st.title("El Pelotudómetro del Trader")
+
+with col3:
+    st.image("https://twemoji.maxcdn.com/v/13.1.0/72x72/1f1e6-1f1f7.png", width=60)
 st.write("""
 **¿Estás para operar o para hacer cagadas?** Este test te mide el nivel de pelotudez antes de que le regales tu guita al mercado. Respondé con sinceridad.
 """)
